@@ -25,7 +25,7 @@ All interaction happens inside Slack using slash commands.
      ```bash
      cp .env.example .env
      ```
-   - Open `.env` and paste the following values:
+   - Create a `.env` and paste this into it:
      ```env
      SLACK_BOT_TOKEN=xoxb-8763317038693-9529823891666-eLmfnV8gYcgp4A8BmMjbNVPj
      SLACK_SIGNING_SECRET=01a73845e9fa450ebd95723b2f99b0c0
