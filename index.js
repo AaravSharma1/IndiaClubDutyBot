@@ -1,16 +1,12 @@
-// index.js
 require('dotenv').config();
 const { App, LogLevel } = require('@slack/bolt');
 
-// ---- simple in-memory store (MVP) ----
-const ASSIGNMENTS = []; // [{user_id, title, due_at: ISO, created_at: ISO, status:'OPEN'}]
+const ASSIGNMENTS = [];
 
-// very small date parser for MVP (MM/DD/YY, MM/DD/YYYY, YYYY-MM-DD)
 function parseDueDate(s) {
   if (!s) return null;
   const trimmed = s.trim();
 
-  // YYYY-MM-DD
   let m = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (m) {
     const [_, y, mo, d] = m;
@@ -18,7 +14,6 @@ function parseDueDate(s) {
     return isNaN(dt) ? null : dt;
   }
 
-  // MM/DD/YYYY
   m = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (m) {
     const [_, mo, d, y] = m;
@@ -26,7 +21,6 @@ function parseDueDate(s) {
     return isNaN(dt) ? null : dt;
   }
 
-  // MM/DD/YY → assume 20YY
   m = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
   if (m) {
     const [_, mo, d, yy] = m;
@@ -44,19 +38,14 @@ function formatDate(dt) {
   } catch { return dt.toISOString().slice(0,10); }
 }
 
-// --------------------------------------
-
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   logLevel: LogLevel.INFO,
-  // If your Slack URLs point at "/" instead of "/slack/events", uncomment this:
-  // endpoints: { events: '/' },
 });
 
 app.error((err) => console.error('Bolt error:', err));
 
-// /duty <title> <due-date>
 app.command('/duty', async ({ ack, body, respond }) => {
   await ack();
 
@@ -66,7 +55,6 @@ app.command('/duty', async ({ ack, body, respond }) => {
     return;
   }
 
-  // heuristic: last whitespace-separated token is the date, everything before is title
   const parts = text.split(/\s+/);
   const maybeDate = parts[parts.length - 1];
   const due = parseDueDate(maybeDate);
@@ -75,7 +63,6 @@ app.command('/duty', async ({ ack, body, respond }) => {
   if (due) {
     title = parts.slice(0, -1).join(' ').trim();
   } else {
-    // allow "title, due: YYYY-MM-DD" form later; for now require date as last token
     await respond('Could not read the due date. Try formats: `MM/DD/YY`, `MM/DD/YYYY`, or `YYYY-MM-DD`.\nExample: `/duty Flyer draft 2025-09-18`');
     return;
   }
@@ -97,7 +84,6 @@ app.command('/duty', async ({ ack, body, respond }) => {
   await respond(`✅ Saved: *${title}* — due *${formatDate(due)}*`);
 });
 
-// /duties
 app.command('/duties', async ({ ack, body, respond }) => {
   await ack();
 
