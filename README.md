@@ -65,6 +65,9 @@ All interaction happens inside Slack using slash commands.
      - *(Optional)* **Event Subscriptions** →  
        `https://f6fafdc3108e.ngrok-free.app/slack/events`
 
+7. **node_modules**
+   - Note that npm start or node index.js should automatically generate a node_modules folder.
+
 ---
 
 ✅ After step 6, your bot is fully connected to Slack. Test it with `/duty` and `/duties` in your workspace.
